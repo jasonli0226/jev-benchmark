@@ -1,0 +1,48 @@
+{
+  "run": "distilbert",
+  "model": "distilbert",
+  "task": "agnews",
+  "track": "A",
+  "split": "test",
+  "limit": null,
+  "n": 7600,
+  "seed": 1,
+  "harness_version": "fe5444fddffa",
+  "prompt_version": null,
+  "serialization": null,
+  "metrics": {
+    "accuracy": 0.9469736842105263,
+    "macro_f1": 0.94698219561308,
+    "ece": 0.022691393765179674,
+    "brier": 0.082986772895155,
+    "nll": 0.17001015893724325
+  },
+  "latency": {
+    "single_item": {
+      "n": 200,
+      "p50_ms": 2.151873999991949,
+      "p95_ms": 2.728883300505913,
+      "mean_ms": 2.2336379399939688
+    },
+    "batch_throughput_ms_per_item": 0.18899881157889659
+  },
+  "cost": {
+    "train_usd": 0.016534006082333387,
+    "inference_usd": 0.00015959899644440157,
+    "usd_per_1k_predictions": 2.0999867953210735e-05,
+    "basis": "gpu at $0.40/h, batched inference"
+  },
+  "timing": {
+    "fit_s": 148.80605474100048,
+    "predict_s": 1.436390967999614
+  },
+  "info": {
+    "base_model": "distilbert-base-uncased",
+    "epochs": 2,
+    "epoch_val_accuracy": [
+      0.9338,
+      0.9444
+    ]
+  },
+  "timestamp": "2026-10-20T16:36:25+00:00"
+}

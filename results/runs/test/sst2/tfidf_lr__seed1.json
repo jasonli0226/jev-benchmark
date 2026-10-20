@@ -1,0 +1,45 @@
+{
+  "run": "tfidf_lr",
+  "model": "tfidf_lr",
+  "task": "sst2",
+  "track": "A",
+  "split": "test",
+  "limit": null,
+  "n": 872,
+  "seed": 1,
+  "harness_version": "fe5444fddffa",
+  "prompt_version": null,
+  "serialization": null,
+  "metrics": {
+    "accuracy": 0.8245412844036697,
+    "macro_f1": 0.823890703890704,
+    "ece": 0.0517492184597211,
+    "brier": 0.2485220266839198,
+    "nll": 0.3965901706396229,
+    "roc_auc": 0.9117359181611517
+  },
+  "latency": {
+    "single_item": {
+      "n": 200,
+      "p50_ms": 0.3803099998549442,
+      "p95_ms": 0.41981439994742686,
+      "mean_ms": 0.3847039000447694
+    },
+    "batch_throughput_ms_per_item": 0.06899899655926582
+  },
+  "cost": {
+    "train_usd": 0.0005709779479166678,
+    "inference_usd": 1.6713090277688836e-06,
+    "usd_per_1k_predictions": 1.9166387933129397e-06,
+    "basis": "cpu at $0.10/h, batched inference"
+  },
+  "timing": {
+    "fit_s": 20.55520612500004,
+    "predict_s": 0.0601671249996798
+  },
+  "info": {
+    "C": 16.0,
+    "val_accuracy": 0.942
+  },
+  "timestamp": "2026-10-20T16:39:34+00:00"
+}

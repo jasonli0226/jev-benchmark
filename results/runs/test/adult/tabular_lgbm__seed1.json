@@ -1,0 +1,44 @@
+{
+  "run": "tabular_lgbm",
+  "model": "tabular_lgbm",
+  "task": "adult",
+  "track": "B",
+  "split": "test",
+  "limit": null,
+  "n": 5000,
+  "seed": 1,
+  "harness_version": "fe5444fddffa",
+  "prompt_version": null,
+  "serialization": null,
+  "metrics": {
+    "accuracy": 0.8788,
+    "macro_f1": 0.8228474207636856,
+    "ece": 0.008741955341836333,
+    "brier": 0.17012560778532235,
+    "nll": 0.26942150800452547,
+    "roc_auc": 0.9315756121878396
+  },
+  "latency": {
+    "single_item": {
+      "n": 200,
+      "p50_ms": 4.151748000140287,
+      "p95_ms": 7.469049599990283,
+      "mean_ms": 4.756374055036758
+    },
+    "batch_throughput_ms_per_item": 0.0030681704000016905
+  },
+  "cost": {
+    "train_usd": 4.5795103416670224e-05,
+    "inference_usd": 4.261347777780126e-07,
+    "usd_per_1k_predictions": 8.522695555560252e-08,
+    "basis": "cpu at $0.10/h, batched inference"
+  },
+  "timing": {
+    "fit_s": 1.648623723000128,
+    "predict_s": 0.015340852000008454
+  },
+  "info": {
+    "best_iteration": 214
+  },
+  "timestamp": "2026-10-20T16:06:58+00:00"
+}

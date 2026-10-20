@@ -1,0 +1,13 @@
+# Iterate on val only. Set frozen: true before any test-split run, and
+# never edit a frozen file: copy it to a new version instead.
+version: sst2_v1
+task: sst2
+frozen: true
+batch_size: 1
+noun: review
+question:
+  type: choice
+  instructions: "What is the overall sentiment of {target}, a sentence from a movie review?"
+  criteria:
+    negative: "The sentence expresses a negative opinion of the movie."
+    positive: "The sentence expresses a positive opinion of the movie."

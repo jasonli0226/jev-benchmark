@@ -1,0 +1,45 @@
+{
+  "run": "embed_lgbm-raw",
+  "model": "embed_lgbm",
+  "task": "adult",
+  "track": "B",
+  "split": "test",
+  "limit": null,
+  "n": 5000,
+  "seed": 2,
+  "harness_version": "fe5444fddffa",
+  "prompt_version": null,
+  "serialization": "raw",
+  "metrics": {
+    "accuracy": 0.8552,
+    "macro_f1": 0.787793756165412,
+    "ece": 0.010387413067001527,
+    "brier": 0.20401292965320644,
+    "nll": 0.31847219753868944,
+    "roc_auc": 0.9050250528399959
+  },
+  "latency": {
+    "single_item": {
+      "n": 200,
+      "p50_ms": 2.5240070001473214,
+      "p95_ms": 2.6589944503257357,
+      "mean_ms": 2.543157634997897
+    },
+    "batch_throughput_ms_per_item": 0.10752103119993989
+  },
+  "cost": {
+    "train_usd": 0.0013376835898889115,
+    "inference_usd": 5.9733906222188835e-05,
+    "usd_per_1k_predictions": 1.1946781244437766e-05,
+    "basis": "gpu at $0.40/h, batched inference"
+  },
+  "timing": {
+    "fit_s": 12.039152309000201,
+    "predict_s": 0.5376051559996995
+  },
+  "info": {
+    "encoder": "sentence-transformers/all-MiniLM-L6-v2",
+    "best_iteration": 190
+  },
+  "timestamp": "2026-10-20T16:08:05+00:00"
+}

@@ -1,0 +1,24 @@
+version: adult_contextual_fewshot_v1
+task: adult
+frozen: true
+batch_size: 1
+serialization: contextual
+examples:
+  n: 20          # labeled rows from the train split, same set for every request
+  seed: 0
+  balance: natural  # keep the train base rate (~24% >50K)
+noun: person
+question:
+  type: noul
+  instructions: "Does {target} in the `person` field, described by their 1994 US Census record, earn more than $50,000 a year? labeled_examples holds other people from the same census with their known income label."
+  criteria:
+    "true": "The person's annual income is above $50,000."
+    "false": "The person's annual income is $50,000 or less."
+background: >
+  Records come from the 1994 US Census. In this population about 24% of
+  adults earn more than $50,000 a year. Higher income is associated with
+  more education (Bachelors and above), being married (husband or wife in
+  the household), managerial and professional occupations, working more
+  than 40 hours per week, ages roughly 35 to 60, and any non-zero capital
+  gains. Most people with no capital gains, under 25, or working part-time
+  earn $50,000 or less.

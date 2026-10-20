@@ -1,0 +1,65 @@
+{
+  "run": "jev-agnews_v2",
+  "model": "jev",
+  "task": "agnews",
+  "track": "A",
+  "split": "test",
+  "limit": null,
+  "n": 7600,
+  "seed": 2,
+  "harness_version": "fe5444fddffa",
+  "prompt_version": "agnews_v2",
+  "serialization": null,
+  "metrics": {
+    "accuracy": 0.895921052631579,
+    "macro_f1": 0.8952832478880584,
+    "ece": 0.05896447368421051,
+    "brier": 0.16501265063983803,
+    "nll": 0.5818626872139432
+  },
+  "latency": {
+    "single_item": {
+      "n": 7600,
+      "p50_ms": 369.1818439997405,
+      "p95_ms": 457.1840054504718,
+      "mean_ms": 384.0272703482888
+    },
+    "per_item_in_batch": {
+      "n": 7600,
+      "p50_ms": 369.1818439997405,
+      "p95_ms": 457.1840054504718,
+      "mean_ms": 384.0272703482888
+    },
+    "batch_throughput_ms_per_item": 24.106693412631536
+  },
+  "cost": {
+    "train_usd": 0.0,
+    "inference_usd": 0.155557878,
+    "usd_per_1k_predictions": 0.020468141842105266,
+    "spent_this_run_usd": 0.155557878,
+    "basis": "OpenRouter usage.cost"
+  },
+  "timing": {
+    "fit_s": 3.3099968277383596e-07,
+    "predict_s": 183.21086993599965
+  },
+  "info": {
+    "prompt_version": "agnews_v2",
+    "prompt_sha256": "622248316370",
+    "serialization": null,
+    "batch_size": 1,
+    "n_examples": 0,
+    "requests": 7600,
+    "cached_requests": 0,
+    "retried_requests": 0,
+    "input_tokens": 3703759,
+    "cost_usd": 0.155557878,
+    "cost_estimated_requests": 0,
+    "parse_failures": 0,
+    "parse_failure_rate": 0.0,
+    "served_models": [
+      "typesafe/jev-1.14-20261014"
+    ]
+  },
+  "timestamp": "2026-10-20T17:12:00+00:00"
+}

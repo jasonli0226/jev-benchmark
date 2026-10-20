@@ -1,0 +1,45 @@
+{
+  "run": "tabular_lr",
+  "model": "tabular_lr",
+  "task": "adult",
+  "track": "B",
+  "split": "test",
+  "limit": null,
+  "n": 5000,
+  "seed": 2,
+  "harness_version": "fe5444fddffa",
+  "prompt_version": null,
+  "serialization": null,
+  "metrics": {
+    "accuracy": 0.8554,
+    "macro_f1": 0.7866007590637565,
+    "ece": 0.01362392085309016,
+    "brier": 0.20344487889997367,
+    "nll": 0.31891482173880914,
+    "roc_auc": 0.9048500917886119
+  },
+  "latency": {
+    "single_item": {
+      "n": 200,
+      "p50_ms": 3.1070679999629647,
+      "p95_ms": 4.499704699787794,
+      "mean_ms": 3.4482999050169383
+    },
+    "batch_throughput_ms_per_item": 0.0013892081999983931
+  },
+  "cost": {
+    "train_usd": 1.8248583583335355e-05,
+    "inference_usd": 1.9294558333311017e-07,
+    "usd_per_1k_predictions": 3.8589116666622036e-08,
+    "basis": "cpu at $0.10/h, batched inference"
+  },
+  "timing": {
+    "fit_s": 0.6569490090000727,
+    "predict_s": 0.006946040999991965
+  },
+  "info": {
+    "C": 4.0,
+    "val_accuracy": 0.8575
+  },
+  "timestamp": "2026-10-20T16:06:52+00:00"
+}

@@ -1,0 +1,16 @@
+# v2: v1 confused tech-company news with business (22/75 sci_tech -> business
+# on val n=300). AG News files technology-industry news under sci_tech, so the
+# criteria now say that explicitly.
+version: agnews_v2
+task: agnews
+frozen: true
+batch_size: 1
+noun: article
+question:
+  type: choice
+  instructions: "Which AG News section does {target}, a news headline and summary, belong to?"
+  criteria:
+    world: "World: international and national politics, governments, elections, conflicts, diplomacy, disasters."
+    sports: "Sports: games, athletes, teams, leagues, tournaments, and the business of sports clubs."
+    business: "Business: the economy, markets, oil, trade, earnings, and companies outside the technology industry."
+    sci_tech: "Sci/Tech: technology companies and products (software, chips, internet, telecom, gadgets, games), plus science, space, health research and the environment."

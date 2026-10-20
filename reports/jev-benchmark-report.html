@@ -1,0 +1,251 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Jev Benchmark Report</title>
+<style>
+  :root {
+    --bg: #ffffff;
+    --text: #1f2328;
+    --muted: #59636e;
+    --border: #d1d9e0;
+    --code-bg: #f6f8fa;
+    --accent: #2b6cd4;
+  }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--text);
+    font: 16px/1.55 -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+  }
+  main { max-width: 880px; margin: 0 auto; padding: 32px 16px 64px; }
+  h1 { font-size: 2rem; margin: 0 0 4px; }
+  h2 { font-size: 1.4rem; margin: 40px 0 12px; padding-bottom: 6px; border-bottom: 1px solid var(--border); }
+  .byline { color: var(--muted); margin: 0 0 24px; }
+  p, ul { margin: 0 0 14px; }
+  li { margin-bottom: 6px; }
+  li p { margin: 0; }
+  code { font: 0.88em ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; background: var(--code-bg); padding: 1px 5px; border-radius: 4px; }
+  pre { background: var(--code-bg); padding: 14px 16px; border-radius: 6px; overflow-x: auto; }
+  pre code { background: none; padding: 0; }
+  .table-wrap { overflow-x: auto; margin: 0 0 16px; }
+  table { border-collapse: collapse; width: 100%; font-size: 0.93rem; }
+  th, td { border: 1px solid var(--border); padding: 6px 10px; text-align: left; vertical-align: top; }
+  th { background: var(--code-bg); }
+  figure { margin: 8px 0 20px; }
+  figure img { width: 100%; height: auto; border: 1px solid var(--border); border-radius: 6px; }
+  figcaption { color: var(--muted); font-size: 0.85rem; margin-top: 6px; }
+  a { color: var(--accent); }
+  ul.tasks { list-style: none; padding-left: 4px; }
+  ul.tasks li::before { content: "\2610\00a0"; }
+</style>
+</head>
+<body>
+<main>
+<h1>Jev Benchmark Report</h1>
+<p class="byline">2026-10-21</p>
+
+<h2 id="summary">Summary</h2>
+<p>Jev beats every local model on SST-2 sentiment (0.960 vs 0.905 for fine-tuned DistilBERT), trails on AG News topics by 5 points, and trails on tabular Adult income by 5.2–8.5 points. It needs no training data, but per prediction it costs about 1,000× more than DistilBERT (and far more than the classical models) and is 100–900× slower than local inference.</p>
+<ul>
+<li><strong>Text, home turf (Track A).</strong> On SST-2, Jev is the best model tested by a clear margin: +5.7 points over DistilBERT (95% CI +3.8 to +7.7). It is also the best calibrated (ECE 0.018). On AG News it reaches 0.896, behind DistilBERT (0.946) and every classical baseline. Most of its errors there come from AG News's own label conventions rather than from misreading the articles.</li>
+<li><strong>Structured data (Track B).</strong> On Adult, Jev's best prompt (contextual framing) reaches 0.826, against 0.879 for LightGBM on native features. The local text models lose almost nothing from serialization: TF-IDF+LR and DistilBERT on the raw text dump match LightGBM to within 0.1 point. So the gap is not caused by turning numbers into text. It comes from Jev being zero-shot on a task whose answer lives in the training-data statistics.</li>
+<li><strong>How the numbers are written matters little; context matters more.</strong> Raw dump vs natural language: +0.4 points. Adding a paragraph of background facts: +1.7 points more. Twenty labeled examples raise ranking quality (AUC) but lower accuracy, at 5× the token cost.</li>
+<li><strong>Operational profile.</strong> Jev answers in about 370 ms median per item and costs $0.015–0.096 per 1,000 predictions. Local models answer in 0.4–4 ms and cost under $0.00003 per 1,000 (rented-GPU equivalent), plus a one-off training cost of at most $0.016. Jev's repeats agree on 98.6–99.9% of labels.</li>
+</ul>
+<p>Total API spend for the study: $4.11 ($3.99 on test, $0.12 on validation iteration).</p>
+
+<h2 id="setup">Setup</h2>
+<p>Three public datasets, six local models and seven frozen Jev prompts were scored on held-out test sets that no model or prompt saw during development.</p>
+<div class="table-wrap"><table>
+<thead><tr><th>Task</th><th>Track</th><th>Labels</th><th>Train</th><th>Val</th><th>Test</th><th>Notes</th></tr></thead>
+<tbody>
+<tr><td>SST-2</td><td>A, text</td><td>2</td><td>65,349</td><td>2,000</td><td>872</td><td>GLUE test labels are hidden, so the GLUE validation set is the test set. Val is carved from train.</td></tr>
+<tr><td>AG News</td><td>A, text</td><td>4</td><td>115,000</td><td>5,000</td><td>7,600</td><td>Official test split.</td></tr>
+<tr><td>UCI Adult</td><td>B, tabular</td><td>2</td><td>41,842</td><td>2,000</td><td>5,000</td><td>OpenML v2, stratified split. 24% earn &gt;$50K. <code>fnlwgt</code> and <code>education-num</code> dropped for all models.</td></tr>
+</tbody>
+</table></div>
+<div class="table-wrap"><table>
+<thead><tr><th>Model</th><th>Input</th><th>Trained on</th><th>Tracks</th></tr></thead>
+<tbody>
+<tr><td>Tabular LR, Tabular LightGBM</td><td>Native features (one-hot / categorical)</td><td>Train split</td><td>B</td></tr>
+<tr><td>TF-IDF + LR</td><td>Word 1–2-grams</td><td>Train split</td><td>A, B</td></tr>
+<tr><td>TF-IDF + LightGBM</td><td>Word 1–2-grams, 20k features</td><td>Train split</td><td>A, B</td></tr>
+<tr><td>MiniLM embeddings + LightGBM</td><td><code>all-MiniLM-L6-v2</code> sentence vectors</td><td>Train split</td><td>A, B</td></tr>
+<tr><td>DistilBERT</td><td>Fine-tuned <code>distilbert-base-uncased</code>, 2 epochs</td><td>Train split</td><td>A, B</td></tr>
+<tr><td>Jev (<code>typesafe/jev-1.14</code>)</td><td>Decisions API, one item per request</td><td>Nothing (zero-shot)</td><td>A, B</td></tr>
+</tbody>
+</table></div>
+<p>On Track B, the local text models read the <code>raw</code> serialization (<code>age=39, capital_gain=2174, …</code>). Jev was scored on five Adult prompts: <code>raw</code> dump, <code>natural</code> sentences, <code>contextual</code> (natural plus a background paragraph of base rate and known income correlates), and the last two with 20 labeled training rows added as few-shot examples. SST-2 and AG News use a Jev <code>choice</code> question; Adult uses <code>noul</code>, the probability of &gt;$50K.</p>
+<p>Integrity rules the harness enforced:</p>
+<ul>
+<li>Splits frozen with SHA-256 hashes, checked on every load.</li>
+<li>Prompt iteration on val only. The harness refuses to run a prompt on test until it is marked <code>frozen: true</code>. One prompt was revised on val (<code>agnews_v1</code> → <code>agnews_v2</code>, +2.1 points on 1,000 val items).</li>
+<li>Every result carries a harness version (<code>fe5444fddffa</code> for all 63 test runs); the report refuses to mix versions.</li>
+<li>Three seeds per local model and three repeats per Jev prompt; tables report mean ± std.</li>
+<li>Unparseable Jev answers would be counted, never dropped. There were none.</li>
+</ul>
+
+<h2 id="track-a">Track A: text classification</h2>
+<p>On text, Jev splits the two tasks: it wins sentiment outright and loses topic classification to every local model.</p>
+<p><strong>SST-2 sentiment</strong> (n = 872, mean ± std over 3 seeds or repeats)</p>
+<div class="table-wrap"><table>
+<thead><tr><th>Model</th><th>Accuracy</th><th>Macro F1</th><th>AUC</th><th>Brier</th></tr></thead>
+<tbody>
+<tr><td><strong>Jev</strong> (<code>sst2_v1</code>)</td><td><strong>0.960 ± 0.001</strong></td><td><strong>0.960</strong></td><td><strong>0.988</strong></td><td><strong>0.064</strong></td></tr>
+<tr><td>DistilBERT</td><td>0.905 ± 0.003</td><td>0.905</td><td>0.971</td><td>0.156</td></tr>
+<tr><td>TF-IDF + LR</td><td>0.825 ± 0.000</td><td>0.824</td><td>0.912</td><td>0.249</td></tr>
+<tr><td>MiniLM + LightGBM</td><td>0.807 ± 0.005</td><td>0.807</td><td>0.891</td><td>0.281</td></tr>
+<tr><td>TF-IDF + LightGBM</td><td>0.788 ± 0.004</td><td>0.787</td><td>0.880</td><td>0.303</td></tr>
+</tbody>
+</table></div>
+<p>Jev's lead over DistilBERT is +5.7 points (paired bootstrap on the same 872 sentences, 95% CI +3.8 to +7.7). Jev scores 0.960 with no training at all. DistilBERT's 0.905 matches its published result (about 0.91), so the local baseline is sound.</p>
+<p><strong>AG News topics</strong> (n = 7,600)</p>
+<div class="table-wrap"><table>
+<thead><tr><th>Model</th><th>Accuracy</th><th>Macro F1</th><th>Brier</th></tr></thead>
+<tbody>
+<tr><td><strong>DistilBERT</strong></td><td><strong>0.946 ± 0.001</strong></td><td><strong>0.946</strong></td><td><strong>0.085</strong></td></tr>
+<tr><td>TF-IDF + LR</td><td>0.923 ± 0.000</td><td>0.923</td><td>0.123</td></tr>
+<tr><td>TF-IDF + LightGBM</td><td>0.919 ± 0.001</td><td>0.919</td><td>0.124</td></tr>
+<tr><td>MiniLM + LightGBM</td><td>0.913 ± 0.000</td><td>0.913</td><td>0.133</td></tr>
+<tr><td>Jev (<code>agnews_v2</code>)</td><td>0.896 ± 0.000</td><td>0.896</td><td>0.165</td></tr>
+</tbody>
+</table></div>
+<p>Jev trails DistilBERT by 4.9 points (95% CI −5.5 to −4.2). On val, most of its errors were Sci/Tech articles labeled Business: stories about Dell, chipmakers or telecoms, which AG News files under Sci/Tech. Spelling that convention out in the prompt (<code>agnews_v2</code>) gained 2.1 points. The trained models learn such dataset-specific conventions from 115,000 labeled examples; a zero-shot model can only be told them.</p>
+
+<h2 id="track-b">Track B: structured data (Adult)</h2>
+<p>On Adult, every Jev prompt scores 5.2–8.5 points below LightGBM on native features. Turning numbers into text costs the trained text models almost nothing.</p>
+<figure>
+<img src="figures/adult-accuracy.png" alt="Adult test accuracy by model: trained local models at 0.855 to 0.879, Jev prompts at 0.794 to 0.826, majority baseline at 0.761">
+<figcaption>results/report/test/summary.json · Adult test split, 5,000 rows · harness fe5444fddffa</figcaption>
+</figure>
+<p>Three findings stand out:</p>
+<ul>
+<li><strong>Serialization alone is cheap.</strong> TF-IDF+LR and DistilBERT reading <code>age=39, capital_gain=2174, …</code> match native LightGBM within 0.1 point. TF-IDF effectively one-hot encodes each exact value, so nothing is lost. The README's question "how much survives serialization?" has a clear answer for trained models: nearly all of it.</li>
+<li><strong>Jev's gap is about knowledge, not format.</strong> Raw dump vs natural sentences differ by only 0.4 points. Adding the background paragraph (base rate and known income correlates) gains 1.7 points, the largest single improvement. That paragraph was written by hand, so part of the gain is human prior knowledge, not Jev's.</li>
+<li><strong>Few-shot examples help ranking, not accuracy.</strong> Twenty labeled rows raise AUC (0.830 → 0.853 natural, 0.863 → 0.875 contextual). Jev then predicts &gt;$50K at about the true 24% rate instead of under-predicting. Accuracy falls 1.3–1.6 points, because shifting borderline cases to &gt;$50K costs more than it gains when only 24% of people are positive.</li>
+</ul>
+<div class="table-wrap"><table>
+<thead><tr><th>Model</th><th>Macro F1</th><th>AUC</th><th>Input tokens per request</th></tr></thead>
+<tbody>
+<tr><td>Tabular LightGBM</td><td>0.823</td><td>0.932</td><td>–</td></tr>
+<tr><td>DistilBERT (raw text)</td><td>0.820</td><td>0.930</td><td>–</td></tr>
+<tr><td>Jev contextual</td><td>0.741</td><td>0.863</td><td>540</td></tr>
+<tr><td>Jev contextual + 20 examples</td><td>0.759</td><td>0.875</td><td>2,277</td></tr>
+<tr><td>Jev natural</td><td>0.697</td><td>0.830</td><td>414</td></tr>
+<tr><td>Jev raw</td><td>0.706</td><td>0.833</td><td>420</td></tr>
+<tr><td>Jev natural + 20 examples</td><td>0.726</td><td>0.853</td><td>2,151</td></tr>
+</tbody>
+</table></div>
+<p>Even Jev's best AUC (0.875) is 5.7 points below LightGBM's (0.932). With ranking that much weaker, tuning Jev's decision threshold could recover at most a point or two, not the 5-point gap.</p>
+
+<h2 id="calibration">Calibration</h2>
+<p>Jev's confidence is trustworthy where its accuracy is high, and overconfident where it is not.</p>
+<figure>
+<img src="figures/ece-by-task.png" alt="Expected calibration error by task: Jev 0.018 on SST-2 (best), 0.059 on AG News and 0.032 on Adult (worst on both)">
+<figcaption>results/report/test/summary.json · ECE with 15 equal-width bins · harness fe5444fddffa</figcaption>
+</figure>
+<ul>
+<li><strong>SST-2:</strong> Jev's ECE of 0.018 is less than a third of DistilBERT's (0.066). Its Brier score (0.064) is also the best of any model.</li>
+<li><strong>AG News:</strong> Jev is overconfident. On val, half its wrong answers (25 of 48) came with confidence above 0.9. A threshold on Jev's <code>confidence</code> would not separate these errors well.</li>
+<li><strong>Adult:</strong> ECE depends on the prompt, from 0.032 (contextual) to 0.068 (natural + 20 examples). The background paragraph halves calibration error compared with the raw dump (0.065). Every local model stays at or below 0.015.</li>
+</ul>
+<p>Trained models are calibrated on the same distribution they are scored on; Jev is not. Before acting on Jev's probabilities in production, recalibrate them on a few hundred labeled examples (Platt or isotonic scaling).</p>
+
+<h2 id="latency-cost">Latency and cost</h2>
+<p>Jev answers in about 370 ms per item and costs $15–96 per million predictions. The cheapest local models answer in under 1 ms for a fraction of a cent per million.</p>
+<div class="table-wrap"><table>
+<thead><tr><th>Model</th><th>Single-item latency p50 (ms)</th><th>p95 (ms)</th><th>Cost per 1k predictions (USD)</th><th>One-off training cost (USD)</th></tr></thead>
+<tbody>
+<tr><td>Jev, one item per request</td><td>367–373</td><td>458–510</td><td>0.015–0.023</td><td>0</td></tr>
+<tr><td>Jev + 20 few-shot examples</td><td>374–383</td><td>513–528</td><td>0.090–0.096</td><td>0</td></tr>
+<tr><td>DistilBERT (GPU)</td><td>2.1–2.3</td><td>2.6–2.8</td><td>0.000009–0.000021</td><td>0.005–0.016</td></tr>
+<tr><td>MiniLM + LightGBM (GPU)</td><td>2.6–2.7</td><td>3.1–3.5</td><td>0.000013–0.000016</td><td>0.001–0.006</td></tr>
+<tr><td>TF-IDF + LightGBM (CPU)</td><td>0.8–1.2</td><td>1.1–1.7</td><td>about 0.000001</td><td>0.0001–0.008</td></tr>
+<tr><td>TF-IDF + LR (CPU)</td><td>0.4–0.5</td><td>0.4–0.7</td><td>about 0.000001</td><td>0.00003–0.003</td></tr>
+<tr><td>Tabular LR / LightGBM (CPU)</td><td>3.1–4.2</td><td>3.8–7.5</td><td>under 0.0000001</td><td>under 0.0001</td></tr>
+</tbody>
+</table></div>
+<p>Ranges span the three tasks.</p>
+<ul>
+<li><strong>How cost was measured.</strong> Jev cost is the sum of each response's <code>usage.cost</code>. Local cost is wall time × a rented-hardware rate ($0.40/h for an RTX 4090-class GPU, $0.10/h for CPU) with batched inference. Engineering time, data labeling and serving infrastructure are not counted on either side.</li>
+<li><strong>Break-even.</strong> DistilBERT's most expensive training run (AG News, $0.016) costs as much as about 800 Jev predictions. Above a few thousand predictions, any trained model is cheaper to run. Jev's cost advantage is that it needs no labeled training data at all.</li>
+<li><strong>Latency.</strong> Jev latency is the HTTP round trip from this machine through OpenRouter, so network distance is part of it. The 370 ms median is within the 70–500 ms range the README cites. With 16 concurrent requests, throughput reached 11–48 ms per item.</li>
+<li><strong>Tokens.</strong> One-item requests used 363–540 input tokens. The fixed request overhead (state wrapper, question and criteria) dominates short items, which is why SST-2 sentences cost nearly as much as Adult records.</li>
+</ul>
+
+<h2 id="stability">Jev repeat stability</h2>
+<p>The same request sent three times gives the same label 98.6–99.9% of the time. Accuracy differs between the best and worst repeat by at most 0.4 points.</p>
+<div class="table-wrap"><table>
+<thead><tr><th>Task</th><th>Prompt</th><th>Label agreement between repeats</th><th>Mean largest probability change</th></tr></thead>
+<tbody>
+<tr><td>SST-2</td><td><code>sst2_v1</code></td><td>99.85%</td><td>0.004</td></tr>
+<tr><td>AG News</td><td><code>agnews_v2</code></td><td>99.59%</td><td>0.005</td></tr>
+<tr><td>Adult</td><td><code>natural</code></td><td>99.20%</td><td>0.008</td></tr>
+<tr><td>Adult</td><td><code>contextual</code></td><td>99.07%</td><td>0.010</td></tr>
+<tr><td>Adult</td><td><code>raw</code></td><td>99.03%</td><td>0.009</td></tr>
+<tr><td>Adult</td><td><code>natural</code> + 20 examples</td><td>98.71%</td><td>0.011</td></tr>
+<tr><td>Adult</td><td><code>contextual</code> + 20 examples</td><td>98.64%</td><td>0.011</td></tr>
+</tbody>
+</table></div>
+<p>All 21 test runs were served by the same snapshot, <code>typesafe/jev-1.14-20261014</code>. Agreement is lowest on Adult, where more items sit near the 0.5 boundary, and lowest of all when few-shot examples are added. For workflows that need repeatable decisions, cache Jev's answer per input rather than re-asking.</p>
+
+<h2 id="caveats">Caveats</h2>
+<p>The biggest open question is whether Jev saw these public datasets during its own training. That could flatter its SST-2 result.</p>
+<ul>
+<li><strong>Possible contamination.</strong> SST-2, AG News and Adult are all widely published, and Jev's training data is not disclosed. A model that memorized SST-2's GLUE validation set would score exactly like this. A fresh, unpublished sentiment set would settle it.</li>
+<li><strong>SST-2 val is not like SST-2 test.</strong> Val was carved from train, which is mostly short phrases; test is full sentences. TF-IDF+LR scored 0.942 on val and 0.825 on test. Val was used only for model selection and for one look at the Jev prompt, so test numbers are unaffected, but val numbers for SST-2 should not be quoted.</li>
+<li><strong>Prompt effort is uneven.</strong> Jev got one revision on AG News and none elsewhere; local models got standard defaults and a small grid over regularization strength. More prompt work could move Jev by a few points, as <code>agnews_v2</code> (+2.1) shows.</li>
+<li><strong>The contextual prompt carries human knowledge.</strong> Its background paragraph names known income correlates. That is fair to how Jev would be used, but its gain is partly the prompt writer's, not Jev's.</li>
+<li><strong>One few-shot set.</strong> Both few-shot prompts used the same 20 training rows (<code>seed: 0</code>). How much results depend on which rows are picked was not measured.</li>
+<li><strong>Deterministic local models.</strong> TF-IDF+LR and Tabular LR give identical results on every seed, so their std of 0.000 is real, not a lack of runs.</li>
+<li><strong>Cost assumptions.</strong> Local costs use rented-hardware rates and exclude engineering time. Jev costs are list prices on 2026-10-21 and can change.</li>
+</ul>
+
+<h2 id="recommendations">Recommendations</h2>
+<p>Use Jev where judgment comes from language and labeled data is scarce. Use a trained model where labels are plentiful or the answer comes from statistics in the data.</p>
+<div class="table-wrap"><table>
+<thead><tr><th>Situation</th><th>Choose</th><th>Why</th></tr></thead>
+<tbody>
+<tr><td>Text judgment, little or no labeled data</td><td>Jev</td><td>Best accuracy and calibration on SST-2 with zero training</td></tr>
+<tr><td>Text task with dataset-specific label conventions</td><td>Trained model, or Jev with the conventions spelled out</td><td>Jev trailed by 4.9 points on AG News; spelling the rules out recovered 2.1</td></tr>
+<tr><td>Tabular prediction with thousands of labeled rows</td><td>LightGBM on native features</td><td>5–9 points more accurate, about 90× faster, nearly free per prediction</td></tr>
+<tr><td>Tabular data that has to go through a text model</td><td>TF-IDF+LR or DistilBERT on the raw dump</td><td>Matched native LightGBM within 0.1 point</td></tr>
+<tr><td>Sub-10 ms latency or millions of predictions a day</td><td>Local model</td><td>Jev's 370 ms median and $15–96 per million add up</td></tr>
+<tr><td>Cold start before labels exist</td><td>Jev now, then train on its logged decisions once labels arrive</td><td>No training needed up front</td></tr>
+</tbody>
+</table></div>
+<p>For the service-counter use case that motivated the study, the Adult result applies: with historical data, a trained tabular model will beat Jev. If Jev is used anyway, give it context, not just numbers. The background paragraph was the only change that clearly helped.</p>
+<p>Worth running next:</p>
+<ul class="tasks">
+<li>A fresh, unpublished sentiment set, to rule out contamination behind the SST-2 result</li>
+<li>Jev on a structured task with no public training data, where its zero-shot advantage is real</li>
+<li>Recalibrating Jev's probabilities on 300 val items to see how much of the ECE gap closes</li>
+</ul>
+
+<h2 id="reproducibility">Reproducibility</h2>
+<p>Every number here can be regenerated from the repo with five commands; Jev answers are cached, so a rerun costs nothing.</p>
+<pre><code>uv sync
+uv run jev-bench suite local     # 42 runs, about 45 min on an RTX 4090
+uv run jev-bench suite jev --concurrency 16   # 21 runs, about 35 min, about $4
+uv run jev-bench report          # results/report/test/summary.md, summary.json, figures/
+uv run jev-bench export          # tarball of runs, per-item predictions, report, prompts</code></pre>
+<div class="table-wrap"><table>
+<thead><tr><th>Item</th><th>Value</th></tr></thead>
+<tbody>
+<tr><td>Harness version</td><td><code>fe5444fddffa</code> (all 63 test runs)</td></tr>
+<tr><td>Jev model</td><td><code>typesafe/jev-1.14</code>, served as <code>typesafe/jev-1.14-20261014</code></td></tr>
+<tr><td>Frozen prompts</td><td><code>sst2_v1</code>, <code>agnews_v2</code>, <code>adult_raw_v1</code>, <code>adult_natural_v1</code>, <code>adult_contextual_v1</code>, <code>adult_natural_fewshot_v1</code>, <code>adult_contextual_fewshot_v1</code></td></tr>
+<tr><td>Split seed</td><td>20261021, hashes in <code>data/manifest.json</code></td></tr>
+<tr><td>Hardware</td><td>RTX 4090 (24 GB), 24 CPU cores</td></tr>
+<tr><td>Confidence intervals</td><td>Paired bootstrap, 2,000 resamples, seed-0 predictions</td></tr>
+<tr><td>Calibration</td><td>Top-label ECE, 15 equal-width bins</td></tr>
+<tr><td>Jev parse failures</td><td>0 of 100,416 items</td></tr>
+<tr><td>Retried Jev requests</td><td>5 transient errors, all succeeded on retry</td></tr>
+</tbody>
+</table></div>
+<p>Sources: <a href="https://openrouter.ai/docs/guides/community/jev">Jev on OpenRouter</a>, <a href="https://openrouter.ai/docs/guides/community/jev-tutorial">Jev tutorial</a>, <a href="https://openrouter.ai/docs/cookbook/evaluate-and-optimize/jev-classification">Jev classification cookbook</a>.</p>
+</main>
+</body>
+</html>

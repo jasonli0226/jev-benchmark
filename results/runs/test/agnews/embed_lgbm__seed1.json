@@ -1,0 +1,44 @@
+{
+  "run": "embed_lgbm",
+  "model": "embed_lgbm",
+  "task": "agnews",
+  "track": "A",
+  "split": "test",
+  "limit": null,
+  "n": 7600,
+  "seed": 1,
+  "harness_version": "fe5444fddffa",
+  "prompt_version": null,
+  "serialization": null,
+  "metrics": {
+    "accuracy": 0.9127631578947368,
+    "macro_f1": 0.9127003122345174,
+    "ece": 0.01382432363896585,
+    "brier": 0.132593514191599,
+    "nll": 0.26106579267103475
+  },
+  "latency": {
+    "single_item": {
+      "n": 200,
+      "p50_ms": 2.70263350012101,
+      "p95_ms": 3.301506900243112,
+      "mean_ms": 2.7894647000312034
+    },
+    "batch_throughput_ms_per_item": 0.14148045736850404
+  },
+  "cost": {
+    "train_usd": 0.005638487343999967,
+    "inference_usd": 0.0001194723862222923,
+    "usd_per_1k_predictions": 1.5720050818722672e-05,
+    "basis": "gpu at $0.40/h, batched inference"
+  },
+  "timing": {
+    "fit_s": 50.746386095999696,
+    "predict_s": 1.0752514760006306
+  },
+  "info": {
+    "encoder": "sentence-transformers/all-MiniLM-L6-v2",
+    "best_iteration": 543
+  },
+  "timestamp": "2026-10-20T16:30:29+00:00"
+}

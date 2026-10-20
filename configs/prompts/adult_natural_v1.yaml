@@ -1,0 +1,12 @@
+version: adult_natural_v1
+task: adult
+frozen: true
+batch_size: 1
+serialization: natural
+noun: person
+question:
+  type: noul
+  instructions: "Does {target}, described by their 1994 US Census record, earn more than $50,000 a year?"
+  criteria:
+    "true": "The person's annual income is above $50,000."
+    "false": "The person's annual income is $50,000 or less."

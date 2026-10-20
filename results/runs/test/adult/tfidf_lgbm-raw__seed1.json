@@ -1,0 +1,44 @@
+{
+  "run": "tfidf_lgbm-raw",
+  "model": "tfidf_lgbm",
+  "task": "adult",
+  "track": "B",
+  "split": "test",
+  "limit": null,
+  "n": 5000,
+  "seed": 1,
+  "harness_version": "fe5444fddffa",
+  "prompt_version": null,
+  "serialization": "raw",
+  "metrics": {
+    "accuracy": 0.8726,
+    "macro_f1": 0.814936608670647,
+    "ece": 0.007372279277811489,
+    "brier": 0.18039472468057105,
+    "nll": 0.28636159545310075,
+    "roc_auc": 0.9220758425385706
+  },
+  "latency": {
+    "single_item": {
+      "n": 200,
+      "p50_ms": 0.8008794998204394,
+      "p95_ms": 1.6789937501926029,
+      "mean_ms": 0.9664027050098412
+    },
+    "batch_throughput_ms_per_item": 0.015096974600055546
+  },
+  "cost": {
+    "train_usd": 0.00013812145219444321,
+    "inference_usd": 2.0968020277854924e-06,
+    "usd_per_1k_predictions": 4.193604055570985e-07,
+    "basis": "cpu at $0.10/h, batched inference"
+  },
+  "timing": {
+    "fit_s": 4.972372278999956,
+    "predict_s": 0.07548487300027773
+  },
+  "info": {
+    "best_iteration": 196
+  },
+  "timestamp": "2026-10-20T16:07:16+00:00"
+}

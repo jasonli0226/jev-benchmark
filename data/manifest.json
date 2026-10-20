@@ -1,0 +1,86 @@
+{
+  "adult": {
+    "test": {
+      "label_counts": {
+        "0": 3804,
+        "1": 1196
+      },
+      "rows": 5000,
+      "sha256": "a7e8b50e685e35f5b39d84965f467c2dfa91dbb7d2ad4da4d935f5709df646ac"
+    },
+    "train": {
+      "label_counts": {
+        "0": 31830,
+        "1": 10012
+      },
+      "rows": 41842,
+      "sha256": "645ba690164b6d75a40b28254251a5aa3ec143d29ca7fcf87ddd5e0e3e1b9219"
+    },
+    "val": {
+      "label_counts": {
+        "0": 1521,
+        "1": 479
+      },
+      "rows": 2000,
+      "sha256": "875be0e7bec7964479252e3613013cff14cf28e569f7fc510e69f536c5180956"
+    }
+  },
+  "agnews": {
+    "test": {
+      "label_counts": {
+        "0": 1900,
+        "1": 1900,
+        "2": 1900,
+        "3": 1900
+      },
+      "rows": 7600,
+      "sha256": "77e2e2d6ed3672d8a4dad126eeb8ce1a8cf39c46c72ac1ecfd1614e7e621ea21"
+    },
+    "train": {
+      "label_counts": {
+        "0": 28750,
+        "1": 28750,
+        "2": 28750,
+        "3": 28750
+      },
+      "rows": 115000,
+      "sha256": "a2f0cfbd794541fa011655d10c357a8d1fced291fdfdd1452e1fe90b3f567049"
+    },
+    "val": {
+      "label_counts": {
+        "0": 1250,
+        "1": 1250,
+        "2": 1250,
+        "3": 1250
+      },
+      "rows": 5000,
+      "sha256": "b532d5739e0836f75a7545f359182734baeb72542f12d291d4694a55a72a8648"
+    }
+  },
+  "sst2": {
+    "test": {
+      "label_counts": {
+        "0": 428,
+        "1": 444
+      },
+      "rows": 872,
+      "sha256": "be32d3beab14693015c62d1d8052b647893a0eabae4ad6416057567f9d3d38c2"
+    },
+    "train": {
+      "label_counts": {
+        "0": 28896,
+        "1": 36453
+      },
+      "rows": 65349,
+      "sha256": "b97826bc3313588bed5959a62962790f07f5ccc18366d1bbfac7377ed976b14f"
+    },
+    "val": {
+      "label_counts": {
+        "0": 884,
+        "1": 1116
+      },
+      "rows": 2000,
+      "sha256": "ed7071c4e74b9614db032212d0c610e950bc08f3af93e93a7ce6cc7a2f234370"
+    }
+  }
+}

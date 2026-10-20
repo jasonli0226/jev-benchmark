@@ -1,0 +1,16 @@
+version: adult_natural_fewshot_v1
+task: adult
+frozen: true
+batch_size: 1
+serialization: natural
+examples:
+  n: 20          # labeled rows from the train split, same set for every request
+  seed: 0
+  balance: natural  # keep the train base rate (~24% >50K)
+noun: person
+question:
+  type: noul
+  instructions: "Does {target} in the `person` field, described by their 1994 US Census record, earn more than $50,000 a year? labeled_examples holds other people from the same census with their known income label."
+  criteria:
+    "true": "The person's annual income is above $50,000."
+    "false": "The person's annual income is $50,000 or less."

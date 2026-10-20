@@ -1,0 +1,49 @@
+{
+  "run": "distilbert-raw",
+  "model": "distilbert",
+  "task": "adult",
+  "track": "B",
+  "split": "test",
+  "limit": null,
+  "n": 5000,
+  "seed": 0,
+  "harness_version": "fe5444fddffa",
+  "prompt_version": null,
+  "serialization": "raw",
+  "metrics": {
+    "accuracy": 0.8774,
+    "macro_f1": 0.8200305789478288,
+    "ece": 0.017272687101364148,
+    "brier": 0.1709464236902855,
+    "nll": 0.2727166069837375,
+    "roc_auc": 0.9303640728470999
+  },
+  "latency": {
+    "single_item": {
+      "n": 200,
+      "p50_ms": 2.191488000107711,
+      "p95_ms": 2.2666287000674856,
+      "mean_ms": 2.2021357999983593
+    },
+    "batch_throughput_ms_per_item": 0.12223508580000271
+  },
+  "cost": {
+    "train_usd": 0.005376472104666695,
+    "inference_usd": 6.79083810000015e-05,
+    "usd_per_1k_predictions": 1.3581676200000302e-05,
+    "basis": "gpu at $0.40/h, batched inference"
+  },
+  "timing": {
+    "fit_s": 48.388248942000246,
+    "predict_s": 0.6111754290000135
+  },
+  "info": {
+    "base_model": "distilbert-base-uncased",
+    "epochs": 2,
+    "epoch_val_accuracy": [
+      0.87,
+      0.875
+    ]
+  },
+  "timestamp": "2026-10-20T16:08:55+00:00"
+}

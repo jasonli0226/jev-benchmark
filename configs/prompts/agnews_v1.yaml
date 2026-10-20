@@ -1,0 +1,13 @@
+version: agnews_v1
+task: agnews
+frozen: false
+batch_size: 1
+noun: article
+question:
+  type: choice
+  instructions: "Which topic is {target}, a news headline and summary, mainly about?"
+  criteria:
+    world: "World news: international affairs, politics, conflicts, governments."
+    sports: "Sports: games, athletes, teams, tournaments."
+    business: "Business: companies, markets, the economy, finance."
+    sci_tech: "Science and technology: computing, internet, space, research, gadgets."

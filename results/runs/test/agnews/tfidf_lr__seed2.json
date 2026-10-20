@@ -1,0 +1,44 @@
+{
+  "run": "tfidf_lr",
+  "model": "tfidf_lr",
+  "task": "agnews",
+  "track": "A",
+  "split": "test",
+  "limit": null,
+  "n": 7600,
+  "seed": 2,
+  "harness_version": "fe5444fddffa",
+  "prompt_version": null,
+  "serialization": null,
+  "metrics": {
+    "accuracy": 0.9232894736842105,
+    "macro_f1": 0.9231642776637137,
+    "ece": 0.023362881943877045,
+    "brier": 0.12287526501937451,
+    "nll": 0.24682564079737196
+  },
+  "latency": {
+    "single_item": {
+      "n": 200,
+      "p50_ms": 0.4071665000537905,
+      "p95_ms": 0.4857240000774253,
+      "mean_ms": 0.41894546498724594
+    },
+    "batch_throughput_ms_per_item": 0.027583959999961546
+  },
+  "cost": {
+    "train_usd": 0.00251095315569445,
+    "inference_usd": 5.823280444436327e-06,
+    "usd_per_1k_predictions": 7.66221111110043e-07,
+    "basis": "cpu at $0.10/h, batched inference"
+  },
+  "timing": {
+    "fit_s": 90.3943136050002,
+    "predict_s": 0.20963809599970773
+  },
+  "info": {
+    "C": 4.0,
+    "val_accuracy": 0.9246
+  },
+  "timestamp": "2026-10-20T16:15:06+00:00"
+}

@@ -1,0 +1,66 @@
+{
+  "run": "jev-adult_natural_v1",
+  "model": "jev",
+  "task": "adult",
+  "track": "B",
+  "split": "test",
+  "limit": null,
+  "n": 5000,
+  "seed": 0,
+  "harness_version": "fe5444fddffa",
+  "prompt_version": "adult_natural_v1",
+  "serialization": "natural",
+  "metrics": {
+    "accuracy": 0.809,
+    "macro_f1": 0.696870029104921,
+    "ece": 0.039233999999999936,
+    "brier": 0.27033732,
+    "nll": 0.4240808369355971,
+    "roc_auc": 0.829629917812266
+  },
+  "latency": {
+    "single_item": {
+      "n": 5000,
+      "p50_ms": 368.4609540000565,
+      "p95_ms": 459.9656144498113,
+      "mean_ms": 390.5220005118018
+    },
+    "per_item_in_batch": {
+      "n": 5000,
+      "p50_ms": 368.4609540000565,
+      "p95_ms": 459.9656144498113,
+      "mean_ms": 390.5220005118018
+    },
+    "batch_throughput_ms_per_item": 11.337308723999922
+  },
+  "cost": {
+    "train_usd": 0.0,
+    "inference_usd": 0.08690178,
+    "usd_per_1k_predictions": 0.017380356,
+    "spent_this_run_usd": 0.040454064,
+    "basis": "OpenRouter usage.cost"
+  },
+  "timing": {
+    "fit_s": 4.940002327202819e-07,
+    "predict_s": 56.68654361999961
+  },
+  "info": {
+    "prompt_version": "adult_natural_v1",
+    "prompt_sha256": "500ade176e19",
+    "serialization": "natural",
+    "batch_size": 1,
+    "n_examples": 0,
+    "requests": 5000,
+    "cached_requests": 2673,
+    "retried_requests": 1,
+    "input_tokens": 2069090,
+    "cost_usd": 0.08690178,
+    "cost_estimated_requests": 0,
+    "parse_failures": 0,
+    "parse_failure_rate": 0.0,
+    "served_models": [
+      "typesafe/jev-1.14-20261014"
+    ]
+  },
+  "timestamp": "2026-10-20T16:39:43+00:00"
+}
