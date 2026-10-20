@@ -40,7 +40,15 @@ def test_jev_val_run_writes_result(fake_jev):
     assert (fake_jev / "preds/val/sst2/jev-sst2_v1__seed0__n20.parquet").exists()
 
 
-def test_unfrozen_prompt_cannot_touch_test(fake_jev):
+def test_unfrozen_prompt_cannot_touch_test(fake_jev, monkeypatch):
+    from dataclasses import replace
+
+    from jev_bench.jev import prompts
+    from jev_bench.models import jev_model
+
+    # Shipped prompts are frozen, so unfreeze one here rather than depend on config state.
+    original = prompts.load_prompt
+    monkeypatch.setattr(jev_model, "load_prompt", lambda v: replace(original(v), frozen=False))
     with pytest.raises(PermissionError, match="not frozen"):
         runner.run("jev", "sst2", split="test", prompt_version="sst2_v1")
 
