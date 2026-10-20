@@ -70,6 +70,8 @@ Accuracy deltas between variants are themselves a result: they quantify the hidd
 | AG News | 115,000 | 5,000 | 7,600 | Official test split. |
 | Adult | 41,842 | 2,000 | 5,000 | OpenML v2 (train+test combined), stratified. `fnlwgt` and `education-num` are dropped for every model. |
 
+Sources, licenses, column schemas and preprocessing details: [`data/README.md`](data/README.md).
+
 ## Repo Layout
 
 ```
