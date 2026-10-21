@@ -87,7 +87,7 @@ jev-benchmark/
 │   └── cli.py
 ├── configs/prompts/       # versioned Jev prompts (frozen before test)
 ├── results/               # runs/ (JSON), preds/ (per-item probabilities), report/, logs/; cache/ is not committed
-├── reports/               # written report (Markdown + PDF) + its figures
+├── reports/               # written report (Markdown) + its figures
 ├── tests/
 └── README.md
 ```
@@ -144,7 +144,7 @@ Test accuracy, 2026-10-21 run (mean of 3 seeds or repeats; harness `fe5444fddffa
 - Jev: ~370 ms median latency, $0.015–0.096 per 1k predictions. Local models: 0.4–4 ms, under $0.00003 per 1k.
 - Caveat: these are public datasets, and Jev's training data is undisclosed, so contamination can't be ruled out for the SST-2 result.
 
-Full write-up: [`reports/jev-benchmark-report.md`](reports/jev-benchmark-report.md) (also as [PDF](reports/jev-benchmark-report.pdf); charts in `reports/figures/`). Machine-generated tables: `results/report/test/summary.md`.
+Full write-up: [`reports/jev-benchmark-report.md`](reports/jev-benchmark-report.md) (charts in `reports/figures/`). Machine-generated tables: `results/report/test/summary.md`.
 
 ## Budget
 
