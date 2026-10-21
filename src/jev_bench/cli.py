@@ -142,6 +142,13 @@ def cmd_recalibrate(args) -> None:
     log.info("recalibration written to %s", path)
 
 
+def cmd_confusion(args) -> None:
+    from jev_bench.report.confusion import build_confusion
+
+    figure, data = build_confusion()
+    log.info("confusion matrices written to %s and %s", figure, data)
+
+
 def cmd_export(args) -> None:
     """Bundle results (runs, predictions, report; not the API cache) for sharing."""
     stamp = datetime.now().strftime("%Y%m%d-%H%M%S")
@@ -203,6 +210,9 @@ def main(argv=None) -> None:
     p = sub.add_parser("recalibrate", help="fit Platt/isotonic on cached Jev val preds, score on test")
     p.add_argument("--task", nargs="+", default=tasks, choices=tasks)
     p.set_defaults(func=cmd_recalibrate)
+
+    p = sub.add_parser("confusion", help="AG News confusion matrices, Jev vs DistilBERT (test, seed 0)")
+    p.set_defaults(func=cmd_confusion)
 
     p = sub.add_parser("export", help="tar results for sharing")
     p.set_defaults(func=cmd_export)

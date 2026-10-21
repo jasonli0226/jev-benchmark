@@ -1,0 +1,134 @@
+{
+  "task": "agnews",
+  "split": "test",
+  "seed": 0,
+  "classes": [
+    "World",
+    "Sports",
+    "Business",
+    "Sci/Tech"
+  ],
+  "matrices": {
+    "jev-agnews_v2": [
+      [
+        1697,
+        55,
+        98,
+        50
+      ],
+      [
+        24,
+        1865,
+        9,
+        2
+      ],
+      [
+        70,
+        5,
+        1503,
+        322
+      ],
+      [
+        78,
+        7,
+        67,
+        1748
+      ]
+    ],
+    "distilbert": [
+      [
+        1811,
+        8,
+        42,
+        39
+      ],
+      [
+        10,
+        1874,
+        9,
+        7
+      ],
+      [
+        37,
+        6,
+        1723,
+        134
+      ],
+      [
+        26,
+        8,
+        92,
+        1774
+      ]
+    ]
+  },
+  "extra_jev_errors": 369,
+  "gap_by_cell": [
+    {
+      "true": "Business",
+      "predicted": "Sci/Tech",
+      "extra_errors": 188,
+      "share": 0.5094850948509485
+    },
+    {
+      "true": "World",
+      "predicted": "Business",
+      "extra_errors": 56,
+      "share": 0.15176151761517614
+    },
+    {
+      "true": "Sci/Tech",
+      "predicted": "World",
+      "extra_errors": 52,
+      "share": 0.14092140921409213
+    },
+    {
+      "true": "World",
+      "predicted": "Sports",
+      "extra_errors": 47,
+      "share": 0.12737127371273713
+    },
+    {
+      "true": "Business",
+      "predicted": "World",
+      "extra_errors": 33,
+      "share": 0.08943089430894309
+    },
+    {
+      "true": "Sports",
+      "predicted": "World",
+      "extra_errors": 14,
+      "share": 0.037940379403794036
+    },
+    {
+      "true": "World",
+      "predicted": "Sci/Tech",
+      "extra_errors": 11,
+      "share": 0.02981029810298103
+    },
+    {
+      "true": "Business",
+      "predicted": "Sports",
+      "extra_errors": -1,
+      "share": -0.0027100271002710027
+    },
+    {
+      "true": "Sci/Tech",
+      "predicted": "Sports",
+      "extra_errors": -1,
+      "share": -0.0027100271002710027
+    },
+    {
+      "true": "Sports",
+      "predicted": "Sci/Tech",
+      "extra_errors": -5,
+      "share": -0.013550135501355014
+    },
+    {
+      "true": "Sci/Tech",
+      "predicted": "Business",
+      "extra_errors": -25,
+      "share": -0.06775067750677506
+    }
+  ]
+}

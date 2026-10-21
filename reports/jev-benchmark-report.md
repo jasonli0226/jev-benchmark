@@ -6,7 +6,7 @@ Oct 21, 2026
 
 Jev beats every local model on SST-2 sentiment (0.960 vs 0.905 for fine-tuned DistilBERT), trails on AG News topics by 5 points, and trails on tabular Adult income by 5.2–8.5 points. It needs no training data, but per prediction it costs about 1,000× more than DistilBERT (and far more than the classical models) and is 100–900× slower than local inference.
 
-- **Text, home turf (Track A).** On SST-2, Jev is the best model tested by a clear margin: +5.7 points over DistilBERT (95% CI +3.8 to +7.7). It is also the best calibrated (ECE 0.018). On AG News it reaches 0.896, behind DistilBERT (0.946) and every classical baseline. Most of its errors there come from AG News's own label conventions rather than from misreading the articles.
+- **Text, home turf (Track A).** On SST-2, Jev is the best model tested by a clear margin: +5.7 points over DistilBERT (95% CI +3.8 to +7.7). It is also the best calibrated (ECE 0.018). On AG News it reaches 0.896, behind DistilBERT (0.946) and every classical baseline. Half of its extra errors are Business stories about telecom, internet and health companies that Jev files under Sci/Tech. AG News is inconsistent about where those stories belong, and a trained model learns its habits from the labels.
 - **Structured data (Track B).** On Adult, Jev's best prompt (contextual framing) reaches 0.826, against 0.879 for LightGBM on native features. The local text models lose almost nothing from serialization: TF-IDF+LR and DistilBERT on the raw text dump match LightGBM to within 0.1 point. So the gap is not caused by turning numbers into text. It comes from Jev being zero-shot on a task whose answer lives in the training-data statistics.
 - **How the numbers are written matters little; context matters more.** Raw dump vs natural language: +0.4 points. Adding a paragraph of background facts: +1.7 points more. Twenty labeled examples raise ranking quality (AUC) but lower accuracy, at 5× the token cost.
 - **Operational profile.** Jev answers in about 370 ms median per item and costs $0.015–0.096 per 1,000 predictions. Local models answer in 0.4–4 ms and cost under $0.00003 per 1,000 (rented-GPU equivalent), plus a one-off training cost of at most $0.016. Jev's repeats agree on 98.6–99.9% of labels.
@@ -68,7 +68,31 @@ Jev's lead over DistilBERT is +5.7 points (paired bootstrap on the same 872 sent
 | MiniLM + LightGBM | 0.913 ± 0.000 | 0.913 | 0.133 |
 | Jev (`agnews_v2`) | 0.896 ± 0.000 | 0.896 | 0.165 |
 
-Jev trails DistilBERT by 4.9 points (95% CI −5.5 to −4.2). On val, most of its errors were Sci/Tech articles labeled Business: stories about Dell, chipmakers or telecoms, which AG News files under Sci/Tech. Spelling that convention out in the prompt (`agnews_v2`) gained 2.1 points. The trained models learn such dataset-specific conventions from 115,000 labeled examples; a zero-shot model can only be told them.
+Jev trails DistilBERT by 4.9 points (95% CI −5.5 to −4.2). With the first prompt (`agnews_v1`), Jev's main val error went one way: Sci/Tech stories about Dell, chipmakers or telecoms that it called Business. `agnews_v2` added a rule, "technology companies and products go under Sci/Tech", and gained 2.1 points on val. The trained models learn such dataset-specific conventions from 115,000 labeled examples; a zero-shot model can only be told them.
+
+### Where Jev's AG News errors come from
+
+![AG News confusion matrices on test: Jev's largest error cell is Business stories predicted as Sci/Tech (322), against 134 for DistilBERT](figures/agnews-confusion.png)
+
+*Source: results/report/test/confusion_agnews.json · `uv run jev-bench confusion` · test, seed 0*
+
+The v2 rule fixed one error and created another. On val it cut Sci/Tech stories called Business from 64 to 9, but raised Business stories called Sci/Tech from 14 to 44. On test, that new error is now Jev's largest cell by far: 322 Business stories filed as Sci/Tech. Examples include Sprint and Nextel shares jumping, Google saying revenue growth is slowing, Cingular upgrading its network, and Vioxx being pulled off the market. AG News puts these under Business; the rule Jev was given puts them under Sci/Tech.
+
+Jev makes 369 more errors than DistilBERT. By cell:
+
+| True → predicted | Extra Jev errors | Share of the gap |
+| --- | --- | --- |
+| Business → Sci/Tech | +188 | 51% |
+| World → Business | +56 | 15% |
+| Sci/Tech → World | +52 | 14% |
+| World → Sports | +47 | 13% |
+| Business → World | +33 | 9% |
+| Sci/Tech → Business | −25 | −7% |
+| other cells | +18 | 5% |
+
+So half the gap is a single boundary, Business vs Sci/Tech, and AG News draws it inconsistently: tech-company stories appear under both labels. DistilBERT also struggles there (134 and 92 errors), but it gets 211 of Jev's 322 right. It seems to use the article's framing (shares, revenue, regulators) rather than its subject, which no one-line rule captures. On Sci/Tech stories called Business, Jev is now 25 errors *better* than DistilBERT, so the v2 rule did work for the half it was written for. Most of the rest of the gap is confusion with World, in both directions. Those errors were not inspected.
+
+The general point: a zero-shot model loses on a dataset's quirks, not on the difficulty of the task. A clean convention can be written into the prompt. An inconsistent one cannot be fully written down, and a rule for one side moves errors to the other side.
 
 ## Track B: structured data (Adult)
 
@@ -198,7 +222,7 @@ Use Jev where judgment comes from language and labeled data is scarce. Use a tra
 | Situation | Choose | Why |
 | --- | --- | --- |
 | Text judgment, little or no labeled data | Jev | Best accuracy and calibration on SST-2 with zero training |
-| Text task with dataset-specific label conventions | Trained model, or Jev with the conventions spelled out | Jev trailed by 4.9 points on AG News; spelling the rules out recovered 2.1 |
+| Text task with dataset-specific label conventions | Trained model, or Jev with the conventions spelled out | Jev trailed by 4.9 points on AG News; spelling the rules out recovered 2.1, but where labels are inconsistent a rule moves errors rather than removing them |
 | Tabular prediction with thousands of labeled rows | LightGBM on native features | 5–9 points more accurate, about 90× faster, nearly free per prediction |
 | Tabular data that has to go through a text model | TF-IDF+LR or DistilBERT on the raw dump | Matched native LightGBM within 0.1 point |
 | Sub-10 ms latency or millions of predictions a day | Local model | Jev's 370 ms median and $15–96 per million add up |
@@ -222,6 +246,7 @@ uv run jev-bench suite local     # 42 runs, about 45 min on an RTX 4090
 uv run jev-bench suite jev --concurrency 16   # 21 runs, about 35 min, about $4
 uv run jev-bench report          # results/report/test/summary.md, summary.json, figures/
 uv run jev-bench recalibrate     # results/report/test/recalibration.md: Platt/isotonic fit on val
+uv run jev-bench confusion       # reports/figures/agnews-confusion.png + results/report/test/confusion_agnews.json
 uv run jev-bench run --model jev --task adult --split test --seed 0 --prompt adult_natural_baserate_v1     # and _correlates_v1: background split
 uv run jev-bench export          # tarball of runs, per-item predictions, report, prompts
 ```

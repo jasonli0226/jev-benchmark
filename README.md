@@ -139,8 +139,9 @@ Test accuracy, 2026-10-21 run (mean of 3 seeds or repeats; harness `fe5444fddffa
 | Adult | **Tabular LightGBM 0.879** | 0.826 (`adult_contextual_v1`) | −5.5 (−6.6, −4.6) |
 
 - Jev wins on sentiment with zero training and is the best-calibrated model there (ECE 0.018), but trails every local model on AG News and Adult.
+- Half of Jev's AG News gap is one boundary: Business stories about tech, telecom and health companies filed as Sci/Tech. AG News labels these inconsistently, and the prompt's rule fixed the opposite error but caused this one.
 - Serialization costs trained models almost nothing: TF-IDF+LR and DistilBERT on the raw Adult text dump match native LightGBM within 0.1 point. Jev's Adult gap comes from being zero-shot, not from the text format.
-- For Jev, context helps more than formatting: raw → natural +0.4 points, + background paragraph +1.7. Twenty few-shot examples raise AUC but lower accuracy, at 5× the tokens.
+- For Jev, context helps more than formatting: raw → natural +0.4 points, + background paragraph +1.7, about 90% of it from the income correlates rather than the base rate. Twenty few-shot examples raise AUC but lower accuracy, at 5× the tokens.
 - Jev: ~370 ms median latency, $0.015–0.096 per 1k predictions. Local models: 0.4–4 ms, under $0.00003 per 1k.
 - Caveat: these are public datasets, and Jev's training data is undisclosed, so contamination can't be ruled out for the SST-2 result.
 
