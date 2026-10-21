@@ -135,6 +135,13 @@ def cmd_report(args) -> None:
     log.info("report written to %s", path)
 
 
+def cmd_recalibrate(args) -> None:
+    from jev_bench.report.recalibrate import build_recalibration
+
+    path = build_recalibration({t: DEFAULT_JEV_PROMPTS[t] for t in args.task})
+    log.info("recalibration written to %s", path)
+
+
 def cmd_export(args) -> None:
     """Bundle results (runs, predictions, report; not the API cache) for sharing."""
     stamp = datetime.now().strftime("%Y%m%d-%H%M%S")
@@ -192,6 +199,10 @@ def main(argv=None) -> None:
     p = sub.add_parser("report", help="aggregate results into tables and plots")
     p.add_argument("--split", default="test", choices=["val", "test"])
     p.set_defaults(func=cmd_report)
+
+    p = sub.add_parser("recalibrate", help="fit Platt/isotonic on cached Jev val preds, score on test")
+    p.add_argument("--task", nargs="+", default=tasks, choices=tasks)
+    p.set_defaults(func=cmd_recalibrate)
 
     p = sub.add_parser("export", help="tar results for sharing")
     p.set_defaults(func=cmd_export)
