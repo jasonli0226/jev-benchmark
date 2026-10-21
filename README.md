@@ -168,7 +168,7 @@ Sensitivity: even at 800 tokens/call, total stays under ~$2.50. Practical note: 
 3. ~~**M3 — Jev integration:** OpenRouter client, serialization variants, prompt versioning~~ done
 4. ~~**M4 — Full comparison:** all models × both tracks × 3 seeds → comparison tables + calibration plots~~ done
 
-Next: an unpublished sentiment set to test for contamination, a structured task with no public training data, and recalibrating Jev's probabilities on val.
+Next: an unpublished sentiment set to test for contamination, a structured task with no public training data. Recalibration on val is done: isotonic brings Jev's AG News ECE from 0.059 to 0.014 (see the report).
 
 ## Notes
 

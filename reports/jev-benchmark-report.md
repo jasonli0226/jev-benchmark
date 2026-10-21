@@ -108,7 +108,29 @@ Jev's confidence is trustworthy where its accuracy is high, and overconfident wh
 - **AG News:** Jev is overconfident. On val, half its wrong answers (25 of 48) came with confidence above 0.9. A threshold on Jev's `confidence` would not separate these errors well.
 - **Adult:** ECE depends on the prompt, from 0.032 (contextual) to 0.068 (natural + 20 examples). The background paragraph halves calibration error compared with the raw dump (0.065). Every local model stays at or below 0.015.
 
-Trained models are calibrated on the same distribution they are scored on; Jev is not. Before acting on Jev's probabilities in production, recalibrate them on a few hundred labeled examples (Platt or isotonic scaling).
+Trained models are calibrated on the same distribution they are scored on; Jev is not.
+
+### Recalibration closes most of the gap
+
+We fitted Platt scaling (temperature scaling for AG News, its multiclass form) and isotonic regression on Jev's cached val answers: 300 items per prompt, 1,000 for AG News. We then applied them to the test predictions. No new API calls were needed.
+
+| Task / prompt | Raw ECE | Platt | Isotonic | Raw accuracy | After Platt |
+| --- | --- | --- | --- | --- | --- |
+| SST-2 `sst2_v1` | 0.018 | 0.021 | 0.024 | 0.960 | 0.963 |
+| AG News `agnews_v2` | 0.059 | 0.033 | **0.014** | 0.896 | 0.896 |
+| Adult `raw_v1` | 0.065 | 0.025 | 0.023 | 0.805 | 0.808 |
+| Adult `natural_v1` | 0.039 | 0.035 | 0.043 | 0.809 | 0.807 |
+| Adult `contextual_v1` | 0.032 | 0.022 | 0.022 | 0.826 | 0.826 |
+| Adult `natural_fewshot_v1` | 0.068 | **0.017** | 0.023 | 0.794 | 0.814 |
+| Adult `contextual_fewshot_v1` | 0.040 | **0.013** | 0.030 | 0.813 | 0.832 |
+
+*Source: results/report/test/recalibration.md · mean over 3 test repeats · `uv run jev-bench recalibrate`*
+
+- **AG News overconfidence can be fixed.** Isotonic scaling brings ECE from 0.059 to 0.014, level with the local models (≤ 0.015). Temperature scaling only halves it, because a single parameter cannot correct each class separately. What recalibration cannot fix: 64% of Jev's val answers have confidence exactly 1.0, and 3.4% of those are wrong. Every answer at 1.0 gets the same recalibrated score, so a confidence threshold still cannot single out those errors.
+- **Adult:** Platt scaling brings every prompt to 0.013–0.035. For the few-shot prompts it also raises accuracy by about 2 points, because it moves the decision threshold. Part of the "few-shot lowers accuracy" result is a threshold effect, not worse judgment. That gain uses 300 labels, so the comparison is no longer zero-shot.
+- **SST-2:** Jev was already calibrated. Recalibration changes ECE by less than the noise of a 300-item fit.
+
+Recommendation: before acting on Jev's probabilities in production, fit isotonic scaling (multiclass) or Platt scaling (binary) on a few hundred labeled examples.
 
 ## Latency and cost
 
@@ -178,7 +200,7 @@ Worth running next:
 
 - [ ] A fresh, unpublished sentiment set, to rule out contamination behind the SST-2 result
 - [ ] Jev on a structured task with no public training data, where its zero-shot advantage is real
-- [ ] Recalibrating Jev's probabilities on 300 val items to see how much of the ECE gap closes
+- [x] Recalibrating Jev's probabilities on 300 val items to see how much of the ECE gap closes (see Calibration: isotonic closes AG News fully, Platt closes Adult)
 
 ## Reproducibility
 
@@ -189,6 +211,7 @@ uv sync
 uv run jev-bench suite local     # 42 runs, about 45 min on an RTX 4090
 uv run jev-bench suite jev --concurrency 16   # 21 runs, about 35 min, about $4
 uv run jev-bench report          # results/report/test/summary.md, summary.json, figures/
+uv run jev-bench recalibrate     # results/report/test/recalibration.md: Platt/isotonic fit on val
 uv run jev-bench export          # tarball of runs, per-item predictions, report, prompts
 ```
 
