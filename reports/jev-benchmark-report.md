@@ -38,7 +38,7 @@ Integrity rules the harness enforced:
 
 - Splits frozen with SHA-256 hashes, checked on every load.
 - Prompt iteration on val only. The harness refuses to run a prompt on test until it is marked `frozen: true`. One prompt was revised on val (`agnews_v1` → `agnews_v2`, +2.1 points on 1,000 val items).
-- Every result carries a harness version (`fe5444fddffa` for all 63 test runs); the report refuses to mix versions.
+- Every result carries a harness version (`fe5444fddffa` for all 65 test runs); the report refuses to mix versions.
 - Three seeds per local model and three repeats per Jev prompt; tables report mean ± std.
 - Unparseable Jev answers would be counted, never dropped. There were none.
 
@@ -82,6 +82,16 @@ Three findings stand out:
 
 - **Serialization alone is cheap.** TF-IDF+LR and DistilBERT reading `age=39, capital_gain=2174, …` match native LightGBM within 0.1 point. TF-IDF effectively one-hot encodes each exact value, so nothing is lost. The README's question "how much survives serialization?" has a clear answer for trained models: nearly all of it.
 - **Jev's gap is about knowledge, not format.** Raw dump vs natural sentences differ by only 0.4 points. Adding the background paragraph (base rate and known income correlates) gains 1.7 points, the largest single improvement. That paragraph was written by hand, so part of the gain is human prior knowledge, not Jev's.
+- **The income correlates carry the background gain; the base rate is redundant.** We split the paragraph into its two halves and ran each on test (seed 0, paired against `natural` on the same items). The two halves overlap rather than add up: base rate alone gives 63% of the gain and correlates alone give 90%. With the correlates already in the prompt, adding the base rate is within noise. The base rate made Jev more conservative: it predicted >$50K for 12% of people instead of 15%, against a true rate of 24%. The correlates moved it toward the true rate (22%) and raised AUC almost to the full paragraph's level.
+
+| Jev prompt (test, seed 0) | Accuracy | Δ vs natural (95% CI) | Share of full gain | AUC | Predicted >$50K |
+| --- | --- | --- | --- | --- | --- |
+| `natural_v1` | 0.809 | – | – | 0.830 | 15.3% |
+| `natural_baserate_v1` (base rate only) | 0.818 | +0.9 (+0.4 to +1.5) | 63% | 0.847 | 12.2% |
+| `natural_correlates_v1` (correlates only) | 0.822 | +1.3 (+0.5 to +2.1) | 90% | 0.862 | 21.5% |
+| `contextual_v1` (both) | 0.824 | +1.5 (+0.8 to +2.1) | 100% | 0.863 | 18.8% |
+
+*Seed 0 only, so the full gain here is +1.5 rather than the 3-repeat mean of +1.7. Contextual vs correlates only: +0.1 (−0.3 to +0.6). Contextual vs base rate only: +0.5 (−0.2 to +1.3).*
 - **Few-shot examples help ranking, not accuracy.** Twenty labeled rows raise AUC (0.830 → 0.853 natural, 0.863 → 0.875 contextual). Jev then predicts >$50K at about the true 24% rate instead of under-predicting. Accuracy falls 1.3–1.6 points, because shifting borderline cases to >$50K costs more than it gains when only 24% of people are positive.
 
 | Model | Macro F1 | AUC | Input tokens per request |
@@ -176,7 +186,7 @@ The biggest open question is whether Jev saw these public datasets during its ow
 - **Possible contamination.** SST-2, AG News and Adult are all widely published, and Jev's training data is not disclosed. A model that memorized SST-2's GLUE validation set would score exactly like this. A fresh, unpublished sentiment set would settle it.
 - **SST-2 val is not like SST-2 test.** Val was carved from train, which is mostly short phrases; test is full sentences. TF-IDF+LR scored 0.942 on val and 0.825 on test. Val was used only for model selection and for one look at the Jev prompt, so test numbers are unaffected, but val numbers for SST-2 should not be quoted.
 - **Prompt effort is uneven.** Jev got one revision on AG News and none elsewhere; local models got standard defaults and a small grid over regularization strength. More prompt work could move Jev by a few points, as `agnews_v2` (+2.1) shows.
-- **The contextual prompt carries human knowledge.** Its background paragraph names known income correlates. That is fair to how Jev would be used, but its gain is partly the prompt writer's, not Jev's.
+- **The contextual prompt carries human knowledge.** Its background paragraph names known income correlates, and those correlates carry about 90% of its gain. That is fair to how Jev would be used, but most of the gain is the prompt writer's knowledge, not Jev's.
 - **One few-shot set.** Both few-shot prompts used the same 20 training rows (`seed: 0`). How much results depend on which rows are picked was not measured.
 - **Deterministic local models.** TF-IDF+LR and Tabular LR give identical results on every seed, so their std of 0.000 is real, not a lack of runs.
 - **Cost assumptions.** Local costs use rented-hardware rates and exclude engineering time. Jev costs are list prices on 2026-10-21 and can change.
@@ -194,7 +204,7 @@ Use Jev where judgment comes from language and labeled data is scarce. Use a tra
 | Sub-10 ms latency or millions of predictions a day | Local model | Jev's 370 ms median and $15–96 per million add up |
 | Cold start before labels exist | Jev now, then train on its logged decisions once labels arrive | No training needed up front |
 
-For the service-counter use case that motivated the study, the Adult result applies: with historical data, a trained tabular model will beat Jev. If Jev is used anyway, give it context, not just numbers. The background paragraph was the only change that clearly helped.
+For the service-counter use case that motivated the study, the Adult result applies: with historical data, a trained tabular model will beat Jev. If Jev is used anyway, give it context, not just numbers. The background paragraph was the only change that clearly helped, and its value is in naming which features drive the outcome. Stating the base rate adds little once those are given.
 
 Worth running next:
 
@@ -204,7 +214,7 @@ Worth running next:
 
 ## Reproducibility
 
-Every number here can be regenerated from the repo with five commands; Jev answers are cached, so a rerun costs nothing.
+Every number here can be regenerated from the repo with the commands below; Jev answers are cached, so a rerun costs nothing.
 
 ```
 uv sync
@@ -212,14 +222,15 @@ uv run jev-bench suite local     # 42 runs, about 45 min on an RTX 4090
 uv run jev-bench suite jev --concurrency 16   # 21 runs, about 35 min, about $4
 uv run jev-bench report          # results/report/test/summary.md, summary.json, figures/
 uv run jev-bench recalibrate     # results/report/test/recalibration.md: Platt/isotonic fit on val
+uv run jev-bench run --model jev --task adult --split test --seed 0 --prompt adult_natural_baserate_v1     # and _correlates_v1: background split
 uv run jev-bench export          # tarball of runs, per-item predictions, report, prompts
 ```
 
 | Item | Value |
 | --- | --- |
-| Harness version | `fe5444fddffa` (all 63 test runs) |
+| Harness version | `fe5444fddffa` (all 65 test runs) |
 | Jev model | `typesafe/jev-1.14`, served as `typesafe/jev-1.14-20261014` |
-| Frozen prompts | `sst2_v1`, `agnews_v2`, `adult_raw_v1`, `adult_natural_v1`, `adult_contextual_v1`, `adult_natural_fewshot_v1`, `adult_contextual_fewshot_v1` |
+| Frozen prompts | `sst2_v1`, `agnews_v2`, `adult_raw_v1`, `adult_natural_v1`, `adult_contextual_v1`, `adult_natural_fewshot_v1`, `adult_contextual_fewshot_v1`; decomposition (test seed 0 only): `adult_natural_baserate_v1`, `adult_natural_correlates_v1` |
 | Split seed | 20261021, hashes in `data/manifest.json` |
 | Hardware | RTX 4090 (24 GB), 24 CPU cores |
 | Confidence intervals | Paired bootstrap, 2,000 resamples, seed-0 predictions |
