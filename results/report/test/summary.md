@@ -13,6 +13,8 @@ Harness version `fe5444fddffa`. Mean ± std over seeds (Jev: repeats).
 | tabular_lr | 3 | 0.8554 ± 0.0000 | 0.7866 ± 0.0000 | 0.0136 ± 0.0000 | 0.2034 | 0.9049 | 3.1 | 3.8 | 4.64e-08 | 1.96e-05 |
 | embed_lgbm-raw | 3 | 0.8550 ± 0.0021 | 0.7869 ± 0.0030 | 0.0094 ± 0.0010 | 0.2039 | 0.9045 | 2.6 | 3.1 | 1.26e-05 | 1.44e-03 |
 | jev-adult_contextual_v1 | 3 | 0.8263 ± 0.0023 | 0.7410 ± 0.0032 | 0.0315 ± 0.0022 | 0.2424 | 0.8629 | 366.5 | 477.1 | 2.27e-02 | 0.00e+00 |
+| jev-adult_natural_correlates_v1 | 1 | 0.8222 | 0.7469 | 0.0374 | 0.2481 | 0.8624 | 359.6 | 443.0 | 2.17e-02 | 0.00e+00 |
+| jev-adult_natural_baserate_v1 | 1 | 0.8182 | 0.6927 | 0.0313 | 0.2570 | 0.8469 | 356.8 | 469.5 | 1.91e-02 | 0.00e+00 |
 | jev-adult_contextual_fewshot_v1 | 3 | 0.8131 ± 0.0005 | 0.7590 ± 0.0007 | 0.0399 ± 0.0009 | 0.2575 | 0.8749 | 383.2 | 527.8 | 9.56e-02 | 0.00e+00 |
 | jev-adult_natural_v1 | 3 | 0.8092 ± 0.0009 | 0.6973 ± 0.0013 | 0.0390 ± 0.0021 | 0.2703 | 0.8295 | 368.5 | 466.6 | 1.74e-02 | 0.00e+00 |
 | jev-adult_raw_v1 | 3 | 0.8051 ± 0.0016 | 0.7062 ± 0.0023 | 0.0652 ± 0.0016 | 0.2755 | 0.8331 | 371.1 | 484.5 | 1.77e-02 | 0.00e+00 |
@@ -55,6 +57,8 @@ Harness version `fe5444fddffa`. Mean ± std over seeds (Jev: repeats).
 | task | Jev run | vs | Δ accuracy | 95% CI |
 |---|---|---|---|---|
 | adult | jev-adult_contextual_v1 | tabular_lgbm | -0.0554 | [-0.0656, -0.0460] |
+| adult | jev-adult_natural_correlates_v1 | tabular_lgbm | -0.0568 | [-0.0670, -0.0474] |
+| adult | jev-adult_natural_baserate_v1 | tabular_lgbm | -0.0608 | [-0.0720, -0.0510] |
 | adult | jev-adult_contextual_fewshot_v1 | tabular_lgbm | -0.0660 | [-0.0766, -0.0554] |
 | adult | jev-adult_natural_v1 | tabular_lgbm | -0.0700 | [-0.0812, -0.0600] |
 | adult | jev-adult_raw_v1 | tabular_lgbm | -0.0756 | [-0.0864, -0.0656] |
@@ -73,6 +77,8 @@ Harness version `fe5444fddffa`. Mean ± std over seeds (Jev: repeats).
 | tabular_lr | 0.8554 | 0.9049 | 0.0136 | -0.0233 |
 | embed_lgbm-raw | 0.8550 | 0.9045 | 0.0094 | -0.0237 |
 | jev-adult_contextual_v1 | 0.8263 | 0.8629 | 0.0315 | -0.0525 |
+| jev-adult_natural_correlates_v1 | 0.8222 | 0.8624 | 0.0374 | -0.0565 |
+| jev-adult_natural_baserate_v1 | 0.8182 | 0.8469 | 0.0313 | -0.0605 |
 | jev-adult_contextual_fewshot_v1 | 0.8131 | 0.8749 | 0.0399 | -0.0657 |
 | jev-adult_natural_v1 | 0.8092 | 0.8295 | 0.0390 | -0.0695 |
 | jev-adult_raw_v1 | 0.8051 | 0.8331 | 0.0652 | -0.0737 |

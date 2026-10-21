@@ -7,7 +7,7 @@ from jev_bench.jev.prompts import build_requests, check_against_task, load_promp
 
 @pytest.mark.parametrize(
     "version,task",
-    [("sst2_v1", "sst2"), ("agnews_v1", "agnews"), ("adult_raw_v1", "adult"), ("adult_natural_v1", "adult"), ("adult_contextual_v1", "adult"), ("adult_natural_fewshot_v1", "adult"), ("adult_contextual_fewshot_v1", "adult")],
+    [("sst2_v1", "sst2"), ("agnews_v1", "agnews"), ("adult_raw_v1", "adult"), ("adult_natural_v1", "adult"), ("adult_contextual_v1", "adult"), ("adult_natural_fewshot_v1", "adult"), ("adult_contextual_fewshot_v1", "adult"), ("adult_natural_baserate_v1", "adult"), ("adult_natural_correlates_v1", "adult")],
 )
 def test_shipped_prompts_are_valid(version, task):
     check_against_task(load_prompt(version), get_task(task))
@@ -28,6 +28,17 @@ def test_contextual_prompt_puts_background_in_state():
     [(body, _)] = build_requests(cfg, ["A 39-year-old ..."])
     assert "24%" in body["state"]["background"]
     assert body["state"]["person"] == "A 39-year-old ..."
+
+
+def test_decomposition_prompts_split_the_contextual_background():
+    full, baserate, correlates = (load_prompt(v) for v in ("adult_contextual_v1", "adult_natural_baserate_v1", "adult_natural_correlates_v1"))
+    assert "24%" in baserate.background and "education" not in baserate.background
+    assert "education" in correlates.background and "24%" not in correlates.background
+    # Same question and record text as the contextual prompt ("natural" renders the
+    # same text as "contextual"), so only the background differs.
+    for half in (baserate, correlates):
+        assert half.serialization == "natural"
+        assert (half.instructions, half.criteria) == (full.instructions, full.criteria)
 
 
 def test_batched_requests_key_each_item():
